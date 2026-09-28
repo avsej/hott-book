@@ -159,10 +159,18 @@ hott-arxiv.tar.gz: hott-arxiv.pdf
 
 exercise_solutions.pdf exercise_solutions.dvi: main.labels
 
+# Workbook: all exercises with space for solutions (see workbook.rb)
+workbook.tex: workbook.rb main.tex exercise_solutions.tex $(BOOKTEXFILES)
+	ruby workbook.rb
+
+workbook.pdf: workbook.tex main.labels
+	latexmk -interaction=batchmode -pdf $<
+	ruby workbook.rb --check
+
 errata.pdf errata.dvi: version.tex main.labels
 
 clean:
-	rm -f *~ *.aux {exercise_solutions,errata,hott-*}.{out,log,pdf,dvi,fls,fdb_latexmk,aux,brf,bbl,idx,ilg,ind,toc,sed}
+	rm -f *~ *.aux workbook.tex {exercise_solutions,errata,workbook,hott-*}.{out,log,pdf,dvi,fls,fdb_latexmk,aux,brf,bbl,idx,ilg,ind,toc,sed}
 	if which latexmk > /dev/null 2>&1 ; then latexmk -interaction=batchmode -C hott-*.tex; fi
 
 # list the tex files explicitly because:
