@@ -160,17 +160,22 @@ hott-arxiv.tar.gz: hott-arxiv.pdf
 exercise_solutions.pdf exercise_solutions.dvi: main.labels
 
 # Workbook: all exercises with space for solutions (see workbook.rb)
-workbook.tex: workbook.rb main.tex exercise_solutions.tex $(BOOKTEXFILES)
-	ruby workbook.rb
+WORKBOOKDEPS = workbook.rb main.tex exercise_solutions.tex $(BOOKTEXFILES)
 
-workbook.pdf: workbook.tex main.labels
+workbook.tex: $(WORKBOOKDEPS) opt-letter.tex
+	ruby workbook.rb -o $@
+
+workbook-ebook.tex: $(WORKBOOKDEPS) opt-ebook.tex
+	ruby workbook.rb --paper ebook -o $@
+
+workbook.pdf workbook-ebook.pdf: %.pdf: %.tex main.labels
 	latexmk -interaction=batchmode -pdf $<
-	ruby workbook.rb --check
+	ruby workbook.rb --check -o $<
 
 errata.pdf errata.dvi: version.tex main.labels
 
 clean:
-	rm -f *~ *.aux workbook.tex {exercise_solutions,errata,workbook,hott-*}.{out,log,pdf,dvi,fls,fdb_latexmk,aux,brf,bbl,idx,ilg,ind,toc,sed}
+	rm -f *~ *.aux workbook.tex workbook-ebook.tex {exercise_solutions,errata,workbook,workbook-ebook,hott-*}.{out,log,pdf,dvi,fls,fdb_latexmk,aux,brf,bbl,idx,ilg,ind,toc,sed}
 	if which latexmk > /dev/null 2>&1 ; then latexmk -interaction=batchmode -C hott-*.tex; fi
 
 # list the tex files explicitly because:
